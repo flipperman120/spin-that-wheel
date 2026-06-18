@@ -12,7 +12,6 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent: #10b981;
-            --accent-hover: #059669;
         }
 
         * {
@@ -30,7 +29,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar Design */
+        /* Navigation Sidebar */
         .sidebar {
             width: 320px;
             background-color: var(--sidebar-bg);
@@ -94,7 +93,7 @@
             font-weight: 600;
         }
 
-        /* Main Workspace Design */
+        /* Workspace Panels */
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -133,11 +132,11 @@
             background-color: var(--border-color);
         }
 
-        /* Live Preview Window */
+        /* Embedded Iframe */
         .preview-container {
             flex-grow: 1;
             position: relative;
-            background: #ffffff; /* Fallback frame background */
+            background: #ffffff;
         }
 
         iframe {
@@ -159,7 +158,6 @@
 </head>
 <body>
 
-    <!-- Left Side: Navigation Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <h1>Workspace Hub</h1>
@@ -180,7 +178,6 @@
         </ul>
     </aside>
 
-    <!-- Right Side: Live Code Preview Window -->
     <main class="main-content">
         <div class="top-bar">
             <div class="current-title" id="active-title">No Code Selected</div>
@@ -196,25 +193,22 @@
 
     <script>
         function loadPreview(projectName) {
-            // Encode name to safely pass spaces into the URL paths
-            const targetUrl = encodeURIComponent(projectName);
+            // Encode spaces and automatically append the required .html extension
+            const targetUrl = encodeURIComponent(projectName) + '.html';
             
             const frame = document.getElementById('preview-frame');
             const placeholder = document.getElementById('placeholder-text');
             const titleDisplay = document.getElementById('active-title');
             const tabLink = document.getElementById('tab-link');
 
-            // Toggle visibility configurations
             placeholder.style.display = 'none';
             frame.style.display = 'block';
             tabLink.style.display = 'inline-block';
 
-            // Set Title text and resource paths
             titleDisplay.innerText = projectName;
             frame.src = targetUrl;
             tabLink.href = targetUrl;
 
-            // Manage CSS Active states across sidebar lists
             const buttons = document.querySelectorAll('.project-btn');
             buttons.forEach(btn => {
                 if (btn.innerText === projectName) {
