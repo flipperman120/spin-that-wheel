@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en"><head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Match</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        :root {
+            --bg-deep: #181C26;
+            --card-navy: #1A2233;
+            --text-warm: #F3EFE3;
+            --gold-glow: #FFD580;
+            --coral: #FF6B6B;
+            --teal: #7ED7C1;
+            --top-bar-bg: #1A2233;
+            --app-width: min(100vw, 1440px);
+            --app-height: calc(125 * min(var(--vh, 1vh), 1vh));
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-warm);
+            width: 100%;
+            min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen { display: none; width: var(--app-width); height: var(--app-height); min-height: var(--app-height); margin: 0 auto; }
+        .screen.active { display: flex; }
+
+        /* Home screen */
+        .home-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10.514rem;
+            text-align: center;
+            animation: fadeIn 400ms ease;
+            position: relative;
+            overflow: hidden;
+            background: var(--home-screen-bg, linear-gradient(180deg, rgba(243,158,217,1), rgba(250,175,227,1), rgba(255,200,238,1), rgba(252,210,239,1), rgba(255,255,255,1)));
+        }
+
+        .home-screen [data-template-id="home-screen-bg"] {
+            position: absolute !important;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: -1;
+        }
+
+        /* Game screen */
+        .game-screen {
+            flex-direction: column;
+            animation: fadeIn 300ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-screen [data-template-id="game-screen-bg"] {
+            position: absolute !important;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 0;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2.984rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .top-bar [data-template-id="top-bar-background"] {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+        }
+
+        .top-bar h2,
+        .top-bar .timer-text,
+        .top-bar .restart-btn {
+            position: relative;
+            z-index: 2;
+        }
+
+        .top-bar-columns {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        .top-bar-col {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .top-bar-col.left {
+            justify-content: flex-start;
+        }
+
+        .top-bar-col.right {
+            justify-content: flex-end;
+        }
+
+        .card-grid-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2.21rem;
+        }
+
+        .game-area-left {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16.9px;
+            max-width: 1226.94px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                max-width: 100%;
+            }
+        }
+
+        .side-cards-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .side-card {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f3efe3;
+        }
+
+        .side-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .right-cards-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-width: 546px;
+            width: 100%;
+            flex-shrink: 0;
+            align-self: center;
+            position: fixed;
+            z-index: 1;
+        }
+
+        .right-cards-container .right-card:nth-child(1) {
+            top: 2.5rem;
+            left: 2.5rem;
+            width: 272.09px;
+            height: 204.07px;
+            position: fixed;
+            aspect-ratio: 4 / 3 !important;
+            animation: floatUpEndless 21.6s linear infinite;
+            animation-delay: -2s;
+        }
+
+        .right-cards-container .right-card:nth-child(2) {
+            top: 30%;
+            right: 15%;
+            transform: translateX(50%);
+            width: 135.55px;
+            height: 101.66px;
+            position: fixed;
+            aspect-ratio: 4 / 3 !important;
+            animation: floatUpEndless 26.4s linear infinite;
+            animation-delay: -5s;
+        }
+
+        .right-cards-container .right-card:nth-child(3) {
+            top: 70%;
+            left: 8.89rem;
+            width: 179.4px;
+            height: 134.55px;
+            position: fixed;
+            transform: translateY(-50%);
+            aspect-ratio: 4 / 3 !important;
+            animation: floatUpEndless 24s linear infinite;
+            animation-delay: -8s;
+        }
+
+        .right-cards-container .right-card:nth-child(4) {
+            bottom: 2.5rem;
+            right: 2.5rem;
+            width: 263.12px;
+            height: 197.34px;
+            position: fixed;
+            aspect-ratio: 4 / 3 !important;
+            animation: floatUpEndless 19.2s linear infinite;
+            animation-delay: -3s;
+        }
+
+        .right-card {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 3.2px solid #FFFFFF;
+        }
+
+        .right-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .bg-cards-container {
+            position: fixed;
+            z-index: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .bg-card {
+            position: fixed;
+            aspect-ratio: 4 / 3;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            filter: blur(8px);
+            pointer-events: none;
+            border: 3.2px solid #FFFFFF;
+        }
+
+        .bg-card:nth-child(1) {
+            top: 8%;
+            left: 45%;
+            width: 106.08px;
+            height: 79.56px;
+            animation: floatUpEndless 18s linear infinite;
+            animation-delay: -4s;
+        }
+
+        .bg-card:nth-child(2) {
+            top: 40%;
+            left: 10%;
+            width: 106.08px;
+            height: 79.56px;
+            animation: floatUpEndless 22.8s linear infinite;
+            animation-delay: -7s;
+        }
+
+        .bg-card:nth-child(3) {
+            top: 45%;
+            right: 12%;
+            width: 106.08px;
+            height: 79.56px;
+            animation: floatUpEndless 20.4s linear infinite;
+            animation-delay: -6s;
+        }
+
+        .bg-card:nth-child(4) {
+            bottom: 20%;
+            left: 25%;
+            width: 106.08px;
+            height: 79.56px;
+            animation: floatUpEndless 25.2s linear infinite;
+            animation-delay: -9s;
+        }
+
+        .bg-card:nth-child(5) {
+            bottom: 15%;
+            right: 35%;
+            width: 106.08px;
+            height: 79.56px;
+            animation: floatUpEndless 16.8s linear infinite;
+            animation-delay: -1s;
+        }
+
+        .bg-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .right-card:hover .right-card-inner {
+                transform: rotateY(0deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bg-cards-container {
+                display: none;
+            }
+
+            .game-screen {
+                overflow-y: auto;
+            }
+        }
+
+        /* Card */
+        .memory-card {
+            position: relative;
+            aspect-ratio: 27.5 / 16.8;
+            border-radius: 20px;
+            cursor: pointer;
+            perspective: 600px;
+            outline: none;
+        }
+
+        @media (min-width: 769px) {
+            .memory-card {
+                /* Desktop: no minimum constraints, scale naturally */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .memory-card {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+
+        .memory-card:focus-visible {
+            box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-back {
+            background: #FFFFFF;
+            border: 1.5px solid rgba(243, 239, 227, 0.15);
+        }
+
+        .card-back svg {
+            width: 32px;
+            height: 32px;
+            opacity: 0.2;
+            color: #1A2233;
+        }
+
+        .card-clock-icon {
+            font-size: 32px;
+            opacity: 0.2;
+            color: #1A2233;
+        }
+
+        .card-front {
+            background: var(--card-navy);
+            transform: rotateY(180deg);
+            overflow: hidden;
+        }
+
+        .card-front-gradient {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-image {
+            border-radius: 8px !important;
+        }
+
+        .memory-card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px solid #FFFFFF;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .memory-card:not(.flipped):not(.matched):hover .card-back {
+            background: #f5f5f5;
+        }
+
+        /* Timer */
+        .timer-text {
+            font-size: 32px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.3s ease;
+        }
+
+        .timer-warning {
+            color: var(--coral) !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        .timer-pulse {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        /* Time selector */
+        .time-options {
+            display: flex;
+            gap: 0.75rem;
+            margin: 3rem 0 2rem;
+            justify-content: center;
+        }
+
+        .time-option {
+            padding: 0.6rem 1.4rem;
+            border-radius: 100px;
+            border: none;
+            background: #FFFFFF;
+            color: rgb(131, 12, 14);
+            font-family: 'Work Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+
+
+        .time-option:focus-visible {
+            box-shadow: 0 0 0 3px var(--gold-glow);
+            outline: none;
+        }
+
+        .time-option.selected {
+            background: #fb64d0 !important;
+            color: #FFFFFF !important;
+            border-color: #fb64d0 !important;
+            font-weight: 600;
+            transform: scale(1.08);
+        }
+
+        .time-option:active {
+            transform: scale(0.95);
+            opacity: 0.85;
+        }
+
+        .time-option.selected:active {
+            background: #181C26;
+            color: var(--teal);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2.4rem;
+            border-radius: 100px;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .btn-primary:focus-visible {
+            box-shadow: 0 0 0 3px var(--gold-glow);
+            outline: none;
+        }
+
+        .btn-teal {
+            background: var(--teal);
+            color: #181C26;
+        }
+
+        .btn-teal:hover {
+            background: #6ec9b3;
+            filter: brightness(1.1);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-teal:active {
+            transform: scale(0.97);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-warm);
+            border: 1.5px solid rgba(243, 239, 227, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost:hover {
+            filter: brightness(1.15);
+            border-color: rgba(243, 239, 227, 0.45);
+            transform: scale(1.05);
+        }
+
+        .modal-home-btn {
+            background: transparent;
+            color: var(--modal-home-color, #FFFFFF);
+            border: 4px solid var(--modal-home-border, #FFFFFF);
+            transition: all 0.2s ease;
+        }
+
+        .modal-home-btn:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-home-btn:active {
+            transform: scale(0.97);
+        }
+
+        .modal-home-btn:focus-visible {
+            box-shadow: 0 0 0 3px var(--gold-glow);
+            outline: none;
+        }
+
+        .game-home-btn {
+            background: transparent;
+            color: var(--game-home-color, var(--text-warm));
+            border: 4px solid var(--game-home-border, #fb64d0);
+            transition: all 0.2s ease;
+        }
+
+        .game-home-btn:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-home-btn:active {
+            transform: scale(0.97);
+        }
+
+        .game-home-btn:focus-visible {
+            box-shadow: 0 0 0 3px var(--gold-glow);
+            outline: none;
+        }
+
+        .restart-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2.4rem;
+            border-radius: 100px;
+            border: none;
+            font-family: var(--restart-font-family, 'Work Sans', sans-serif);
+            font-size: var(--restart-font-size, 16px);
+            font-weight: 500;
+            cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+            transition: all 0.2s ease;
+            background: var(--restart-bg, #7ED7C1);
+            color: var(--restart-color, #181C26);
+        }
+
+        .restart-btn:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .restart-btn:active {
+            transform: scale(0.97);
+        }
+
+        .restart-btn:focus-visible {
+            box-shadow: 0 0 0 3px var(--gold-glow);
+            outline: none;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            padding: 2.55rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 400ms ease;
+        }
+
+        .modal-box {
+            background: #1E2536;
+            border-radius: 20px;
+            padding: 4.225rem 2.6rem;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(243, 239, 227, 0.08);
+        }
+
+        .modal-emoji {
+            font-size: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.75rem;
+            justify-content: center;
+        }
+
+        @keyframes floatUpEndless {
+            0% {
+                transform: translateY(calc(100vh + 300px)) translateZ(0);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-300px) translateZ(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Home screen mobile */
+            .home-screen {
+                padding: 2rem;
+            }
+
+            .home-screen > div:first-of-type {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 2rem;
+            }
+
+            .home-screen h1 div {
+                font-size: 48px;
+                margin-bottom: -1.5rem;
+            }
+
+            .home-screen h1 div:last-child {
+                margin-bottom: 0.5rem;
+            }
+
+            .home-screen p {
+                font-size: 16px;
+            }
+
+            .time-options {
+                flex-direction: column;
+                width: 100%;
+                margin: 2rem 0 1.5rem;
+            }
+
+            .time-option {
+                width: 100%;
+            }
+
+            .start-game-btn {
+                width: 100%;
+            }
+
+            .right-cards-container {
+                display: none;
+            }
+
+            /* Game screen mobile */
+            .top-bar {
+                flex-direction: column;
+                padding: 1rem 0.75rem;
+                gap: 1rem;
+                align-items: center;
+                justify-content: flex-start;
+            }
+
+            .top-bar-columns {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 1rem;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .top-bar-col {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                flex: 0 1 auto;
+            }
+
+            .top-bar-col.left {
+                justify-content: center;
+                flex: 0 1 auto;
+            }
+
+            .top-bar-col:not(.left):not(.right) {
+                flex: 0 1 auto;
+                justify-content: center;
+            }
+
+            .top-bar-col.right {
+                justify-content: center;
+                display: flex;
+                gap: 0.75rem;
+            }
+
+            .timer-text {
+                font-size: 24px;
+                white-space: nowrap;
+            }
+
+            .card-grid {
+                gap: 12px;
+                max-width: 340px;
+            }
+
+            /* Modal mobile */
+            .modal-overlay {
+                padding: 1.5rem;
+            }
+
+            .modal-box {
+                padding: 2rem 1.5rem;
+                max-width: 100%;
+            }
+
+            .modal-box h2 {
+                font-size: 28px !important;
+            }
+
+            .modal-box p {
+                font-size: 14px !important;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .modal-actions button {
+                width: 100%;
+            }
+
+            .card-grid-wrapper {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-grid { gap: 8px; max-width: 340px; }
+            .top-bar { padding: 0.75rem 1rem; }
+            .timer-text { font-size: 26px; }
+        }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" style="background: linear-gradient(rgb(234, 100, 216), rgb(251, 193, 119));">
+  <!-- HOME SCREEN -->
+  <main id="home-screen" class="screen home-screen active" role="main" aria-label="Home screen">
+   <div data-template-id="home-screen-bg" class="canva-container" style="inset: 0px; z-index: -1; position: absolute !important; width: 100% !important; height: 100% !important; background: linear-gradient(rgb(243, 158, 217), rgb(250, 175, 227), rgb(255, 200, 238), rgb(252, 210, 239), rgb(255, 255, 255));"></div><!-- Hidden reference images for card replacement via editor -->
+   <div style="display: none;">
+    <img data-template-id="card-image-1" class="canva-image" loading="lazy" alt="Two Coffee Cups on Trays" src="canva://MAHA47I4Rw8/1"> <img data-template-id="card-image-2" class="canva-image" loading="lazy" alt="Colorful Markers in Pencil Case" src="canva://MAHA43ry5bM/1"> <img data-template-id="card-image-3" class="canva-image" loading="lazy" alt="Hands Holding Mugs with Pink Background" src="canva://MAHA40iRmeI/1"> <img data-template-id="card-image-4" class="canva-image" loading="lazy" alt="Celebratory Congratulations Cake" src="canva://MAFNaH-Rfes/1"> <img data-template-id="card-image-5" class="canva-image" loading="lazy" alt="Green Shelving Unit Held by Hands" src="canva://MAHA4xmrnYI/1"> <img data-template-id="card-image-6" class="canva-image" loading="lazy" alt="Blue Earbuds on Pink Books" src="canva://MAHA43o8CXU/1"> <img data-template-id="card-image-7" class="canva-image" loading="lazy" alt="Red Headphones in a White Crate" src="canva://MAHA42V6pV0/1"> <img data-template-id="card-image-8" class="canva-image" loading="lazy" alt="Blue Silk Shirt Lay Flat" src="canva://MAHA404fGGo/1">
+   </div>
+   <div style="display: flex; align-items: center; justify-content: center; width: 100%; gap: 2rem; position: relative; z-index: 1; flex-direction: column;">
+    <div style="flex: 1; text-align: center;">
+     <h1 style="margin: 0; padding: 0; margin-bottom: 0.75rem;">
+      <div data-template-id="home-title" class="canva-text" style="font-size: 146px; font-weight: 800; line-height: 0.52272; width: fit-content; letter-spacing: -0.05em; margin: 0px auto; color: rgb(131, 12, 14); font-style: normal;">Memory
+Match</div></h1>
+     <p data-template-id="home-description" class="canva-text" style="font-size: 26px; opacity: 1; line-height: 1.5; margin-bottom: 1.05rem; color: rgb(131, 12, 14); font-weight: 500; font-style: normal;">Test your memory. Match all pairs
+before time runs out.</p>
+     <fieldset class="time-options" role="radiogroup" aria-label="Select time limit">
+      <legend class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Time limit</legend> <button data-template-id="time-30" class="canva-button time-option" role="radio" aria-checked="false" data-time="30" onclick="selectTime(30, this)" style="background: rgb(255, 255, 255); color: rgb(131, 12, 14); font-weight: 700; font-size: 18px;">30s</button> <button data-template-id="time-60" class="canva-button time-option selected" role="radio" aria-checked="true" data-time="60" onclick="selectTime(60, this)" style="background: rgb(255, 255, 255); color: rgb(131, 12, 14); font-weight: 700; font-size: 18px;">60s</button> <button data-template-id="time-90" class="canva-button time-option" role="radio" aria-checked="false" data-time="90" onclick="selectTime(90, this)" style="background: rgb(255, 255, 255); color: rgb(131, 12, 14); font-weight: 700; font-size: 18px;">90s</button>
+     </fieldset><button data-template-id="start-game-btn" class="canva-button btn-primary btn-teal" onclick="startGame()" style="background: rgb(131, 12, 14); color: rgb(255, 249, 242); font-weight: 500; font-style: normal; font-size: 21px;">Start Game</button>
+    </div>
+   </div>
+   <div class="right-cards-container" aria-label="Decorative cards">
+    <div class="right-card">
+     <img data-template-id="right-card-1-image" class="canva-image right-card-image" loading="lazy" alt="Majestic mountain landscape with a tranquil river in Zion National Park under a vibrant sky." src="canva://MAHA49-oSOI/1">
+    </div>
+    <div class="right-card">
+     <img data-template-id="right-card-2-image" class="canva-image right-card-image" loading="lazy" alt="Majestic mountain landscape with a tranquil river in Zion National Park under a vibrant sky." src="canva://MAHA45QVblA/1">
+    </div>
+    <div class="right-card">
+     <img data-template-id="right-card-3-image" class="canva-image right-card-image" loading="lazy" alt="A hummingbird hovers gracefully near a blooming red hibiscus, showcasing nature's delicate beauty." src="canva://MAHA4_unWvw/1">
+    </div>
+    <div class="right-card">
+     <img data-template-id="right-card-4-image" class="canva-image right-card-image" loading="lazy" alt="Majestic snow-covered mountain range with a rising moon and pink sunset sky." src="canva://MAHA40iRmeI/1">
+    </div>
+   </div>
+   <div class="bg-cards-container" aria-label="Background decorative cards">
+    <div class="bg-card">
+     <img data-template-id="bg-card-1-image" class="canva-image bg-card-image" loading="lazy" alt="Vibrant and pastel watercolor abstract painting with dynamic colors enhancing creativity." src="https://images.pexels.com/photos/4457896/pexels-photo-4457896.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400">
+    </div>
+    <div class="bg-card">
+     <img data-template-id="bg-card-2-image" class="canva-image bg-card-image" loading="lazy" alt="A vivid abstract bokeh background with blue and purple lights, perfect for design use." src="https://images.pexels.com/photos/370799/pexels-photo-370799.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400">
+    </div>
+    <div class="bg-card">
+     <img data-template-id="bg-card-3-image" class="canva-image bg-card-image" loading="lazy" alt="Colorful abstract paint splash on white background, capturing creative expression." src="https://images.pexels.com/photos/1193743/pexels-photo-1193743.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400">
+    </div>
+    <div class="bg-card">
+     <img data-template-id="bg-card-4-image" class="canva-image bg-card-image" loading="lazy" alt="Vibrant geometric abstract background with pastel colors and dynamic shapes." src="https://images.pexels.com/photos/2457317/pexels-photo-2457317.png?auto=compress&amp;cs=tinysrgb&amp;w=400">
+    </div>
+    <div class="bg-card">
+     <img data-template-id="bg-card-5-image" class="canva-image bg-card-image" loading="lazy" alt="A dreamy pink and purple cloud-filled sky at sunset, creating a serene and tranquil atmosphere." src="https://images.pexels.com/photos/907485/pexels-photo-907485.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400">
+    </div>
+   </div>
+  </main><!-- GAME SCREEN -->
+  <section id="game-screen" class="screen game-screen" aria-label="Game screen">
+   <div data-template-id="game-screen-bg" class="canva-container" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 0; background: transparent;"></div>
+   <header class="top-bar">
+    <div data-template-id="top-bar-background" class="canva-container" style="background: rgb(255, 255, 255);"></div>
+    <div class="top-bar-columns">
+     <div class="top-bar-col left">
+      <h2 data-template-id="game-title" class="canva-text" style="font-size: 33px; font-weight: 700; color: rgb(131, 12, 14); font-style: normal;">Memory Match</h2>
+     </div>
+     <div class="top-bar-col" style="flex: 0 0 auto;">
+      <div data-template-id="timer-display" class="canva-text timer-text" aria-live="polite" aria-label="Time remaining" style="color: rgb(251, 100, 208); font-weight: 700; font-size: 41px;"></div>
+     </div>
+     <div class="top-bar-col right" style="gap: 17px;">
+      <button data-template-id="restart-btn" class="canva-button restart-btn" onclick="restartGame()" style="background: rgb(251, 100, 208); color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 16px;">Restart</button> <button data-template-id="game-home-btn" class="canva-button btn-primary game-home-btn" onclick="goHome()" style="background: transparent; color: rgb(251, 100, 208); font-weight: 700; font-style: normal; font-size: 16px;">Home</button>
+     </div>
+    </div>
+   </header>
+   <div class="card-grid-wrapper">
+    <div id="card-grid" class="card-grid" role="grid" aria-label="Memory card grid"></div>
+   </div>
+  </section><!-- Card template (in HTML for visibility) -->
+  <template id="card-template">
+   <div class="memory-card" tabindex="0" role="gridcell" aria-label="Memory card, face down">
+    <div class="card-inner">
+     <div class="card-face card-back">
+      <div class="card-number" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #e8e8e8;"></div>
+     </div>
+     <div class="card-face card-front"><img class="card-image canva-image" loading="lazy" alt="Memory card" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+     </div>
+    </div>
+   </div>
+  </template><!-- WIN MODAL -->
+  <div id="win-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="You won">
+   <div data-template-id="win-modal-background" class="canva-panel modal-box" style="background: rgb(131, 12, 14);">
+    <h2 data-template-id="win-title" class="canva-text" style="font-size: 55px; font-weight: 700; margin-bottom: 0.5rem; color: rgb(255, 255, 255); font-style: normal;">You did it!</h2>
+    <p id="win-detail" data-template-id="win-detail" class="canva-text" style="font-size: 16px; opacity: 1; line-height: 1.5; color: rgb(255, 255, 255);"></p>
+    <div class="modal-actions">
+     <button data-template-id="win-play-again-btn" class="canva-button btn-primary btn-teal" onclick="restartGame()" style="background: rgb(251, 100, 208); color: rgb(255, 249, 242); font-weight: 700; font-style: normal; font-size: 14px;">Play Again</button> <button data-template-id="win-home-btn" class="canva-button btn-primary modal-home-btn" onclick="goHome()" style="background: transparent; font-weight: 700; font-style: normal; font-size: 16px;">Home</button>
+    </div>
+   </div>
+  </div><!-- LOSE MODAL -->
+  <div id="lose-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Time is up">
+   <div data-template-id="lose-modal-background" class="canva-panel modal-box" style="background: rgb(131, 12, 14);">
+    <h2 data-template-id="lose-title" class="canva-text" style="font-size: 53px; font-weight: 700; margin-bottom: 0.5rem; color: rgb(255, 255, 255); font-style: normal;">Time's up.</h2>
+    <p id="lose-detail" data-template-id="lose-detail" class="canva-text" style="font-size: 16px; opacity: 1; line-height: 1.5; color: rgb(255, 255, 255);"></p>
+    <div class="modal-actions">
+     <button data-template-id="lose-play-again-btn" class="canva-button btn-primary btn-teal" onclick="restartGame()" style="background: rgb(251, 100, 208); color: rgb(243, 239, 227); font-weight: 700; font-style: normal; font-size: 13px;">Play Again</button> <button data-template-id="lose-home-btn" class="canva-button btn-primary modal-home-btn" onclick="goHome()" style="background: transparent; font-weight: 700; font-style: normal; font-size: 13px;">Home</button>
+    </div>
+   </div>
+  </div>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+        // Update top bar background color from config when it loads
+        const topBarBgEl = document.querySelector('[data-template-id="top-bar-background"]');
+        const topBar = document.querySelector('.top-bar');
+        
+        function updateTopBarBackground() {
+            if (topBarBgEl && topBarBgEl.style.background) {
+                topBar.style.background = topBarBgEl.style.background;
+            }
+        }
+
+        // Update on initial load
+        updateTopBarBackground();
+
+        // Also watch for attribute changes
+        const observer = new MutationObserver(updateTopBarBackground);
+        if (topBarBgEl) {
+            observer.observe(topBarBgEl, { attributes: true, attributeFilter: ['style'] });
+        }
+
+        // Sync Home button outline color with config background property
+        const gameHomBtn = document.querySelector('[data-template-id="game-home-btn"]');
+        
+        function syncHomeButtonOutlineColor() {
+            if (gameHomBtn) {
+                const bgValue = gameHomBtn.style.background;
+                if (bgValue && bgValue !== 'transparent') {
+                    gameHomBtn.style.borderColor = bgValue;
+                    gameHomBtn.style.background = 'transparent';
+                }
+            }
+        }
+
+        // Initial sync
+        syncHomeButtonOutlineColor();
+
+        // Watch for changes from the SDK
+        const homeButtonObserver = new MutationObserver(syncHomeButtonOutlineColor);
+        if (gameHomBtn) {
+            homeButtonObserver.observe(gameHomBtn, { attributes: true, attributeFilter: ['style'] });
+        }
+
+        // Game state
+        let selectedTime = 60;
+        let timeRemaining = 60;
+        let timerInterval = null;
+        let revealedCards = [];
+        let matchedPairs = [];
+        let cards = [];
+        let isProcessing = false;
+        const totalPairs = 8;
+
+        // Image sources pulled from SDK-populated hidden elements
+        function getCardImages() {
+            const images = [];
+            for (let i = 1; i <= 8; i++) {
+                const el = document.querySelector(`[data-template-id="card-image-${i}"]`);
+                images.push({
+                    id: i,
+                    src: el ? el.src : '',
+                    alt: el ? el.alt : `Card ${i}`
+                });
+            }
+            return images;
+        }
+
+        function selectTime(time, btn) {
+            selectedTime = time;
+            document.querySelectorAll('.time-option').forEach(b => {
+                b.classList.remove('selected');
+                b.setAttribute('aria-checked', 'false');
+                b.style.background = '';
+                b.style.color = '';
+                b.style.borderColor = '';
+            });
+            btn.classList.add('selected');
+            btn.setAttribute('aria-checked', 'true');
+            btn.style.background = '#fb64d0';
+            btn.style.color = '#FFFFFF';
+            btn.style.borderColor = '#fb64d0';
+        }
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function startGame() {
+            timeRemaining = selectedTime;
+            matchedPairs = [];
+            revealedCards = [];
+            isProcessing = false;
+            buildGrid();
+            showScreen('game-screen');
+            updateTimerDisplay();
+            startTimer();
+        }
+
+        function buildGrid() {
+            const grid = document.getElementById('card-grid');
+            grid.innerHTML = '';
+            // Create pairs: two of each image (card-image-1 through card-image-8)
+            const pairs = [];
+            for (let i = 1; i <= totalPairs; i++) {
+                pairs.push({ pairId: i, cardId: i, uniqueId: i + '-a' });
+                pairs.push({ pairId: i, cardId: i, uniqueId: i + '-b' });
+            }
+            cards = shuffle(pairs);
+
+            const template = document.getElementById('card-template');
+            cards.forEach((card, index) => {
+                const el = template.content.cloneNode(true);
+                const cardEl = el.querySelector('.memory-card');
+                cardEl.dataset.pairId = card.pairId;
+                cardEl.dataset.uid = card.uniqueId;
+                cardEl.dataset.index = index;
+
+                // Set card number on back face
+                const cardNumber = cardEl.querySelector('.card-number');
+                cardNumber.textContent = String(index + 1);
+
+                // Set card image with data-template-id for direct editing
+                const cardImg = cardEl.querySelector('.card-image');
+                cardImg.setAttribute('data-template-id', `card-image-${card.cardId}`);
+                
+                // Load image from SDK config if available
+                const imgEl = document.querySelector(`[data-template-id="card-image-${card.cardId}"]`);
+                if (imgEl && imgEl.src) {
+                    cardImg.src = imgEl.src;
+                    cardImg.alt = imgEl.alt || `Card ${card.cardId}`;
+                }
+
+                cardEl.addEventListener('click', () => flipCard(cardEl));
+                cardEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        flipCard(cardEl);
+                    }
+                });
+
+                grid.appendChild(el);
+            });
+        }
+
+        function flipCard(cardEl) {
+            // Prevent interaction with matched cards
+            if (cardEl.classList.contains('matched')) return;
+            if (isProcessing) return;
+            if (cardEl.classList.contains('flipped')) return;
+            if (revealedCards.length >= 2) return;
+
+            cardEl.classList.add('flipped');
+            cardEl.setAttribute('aria-label', `Card revealed`);
+            revealedCards.push(cardEl);
+
+            if (revealedCards.length === 2) {
+                isProcessing = true;
+                const [first, second] = revealedCards;
+
+                if (first.dataset.pairId === second.dataset.pairId) {
+                    // Match found
+                    setTimeout(() => {
+                        first.classList.add('matched');
+                        second.classList.add('matched');
+                        first.setAttribute('aria-label', `Matched`);
+                        second.setAttribute('aria-label', `Matched`);
+                        matchedPairs.push(first.dataset.pairId);
+                        revealedCards = [];
+                        isProcessing = false;
+
+                        if (matchedPairs.length === totalPairs) {
+                            endGame(true);
+                        }
+                    }, 400);
+                } else {
+                    // No match — flip back
+                    setTimeout(() => {
+                        first.classList.remove('flipped');
+                        second.classList.remove('flipped');
+                        first.setAttribute('aria-label', 'Memory card, face down');
+                        second.setAttribute('aria-label', 'Memory card, face down');
+                        revealedCards = [];
+                        isProcessing = false;
+                    }, 800);
+                }
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const el = document.querySelector('[data-template-id="timer-display"]');
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+            if (timeRemaining <= 10 && timeRemaining > 0) {
+                el.classList.add('timer-warning', 'timer-pulse');
+            } else {
+                el.classList.remove('timer-warning', 'timer-pulse');
+            }
+        }
+
+        function endGame(won) {
+            clearInterval(timerInterval);
+            isProcessing = true;
+
+            if (won) {
+                const mins = Math.floor(timeRemaining / 60);
+                const secs = timeRemaining % 60;
+                const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                document.getElementById('win-detail').textContent = `Time remaining: ${timeStr}`;
+                document.getElementById('win-modal').classList.add('active');
+            } else {
+                document.getElementById('lose-detail').textContent = `You matched ${matchedPairs.length} of ${totalPairs} pairs.`;
+                document.getElementById('lose-modal').classList.add('active');
+            }
+        }
+
+        function closeModals() {
+            document.getElementById('win-modal').classList.remove('active');
+            document.getElementById('lose-modal').classList.remove('active');
+        }
+
+        function restartGame() {
+            closeModals();
+            startGame();
+        }
+
+        function goHome() {
+            closeModals();
+            clearInterval(timerInterval);
+            showScreen('home-screen');
+        }
+
+        // Sync modal Home buttons outline color with config background property
+        function setupModalHomeButtonObserver(btnId) {
+            const btn = document.querySelector(`[data-template-id="${btnId}"]`);
+            if (!btn) return;
+
+            function syncOutlineColor() {
+                const bgValue = btn.style.background;
+                if (bgValue && bgValue !== 'transparent') {
+                    btn.style.borderColor = bgValue;
+                    btn.style.background = 'transparent';
+                }
+            }
+
+            // Initial sync
+            syncOutlineColor();
+
+            // Watch for changes from the SDK
+            const observer = new MutationObserver(syncOutlineColor);
+            observer.observe(btn, { attributes: true, attributeFilter: ['style'] });
+        }
+
+        // Setup observers for both modal home buttons
+        setupModalHomeButtonObserver('win-home-btn');
+        setupModalHomeButtonObserver('lose-home-btn');
+
+        // Setup MutationObserver for time selector buttons to maintain selected state
+        document.querySelectorAll('.time-option').forEach(btn => {
+            const observer = new MutationObserver(() => {
+                if (btn.classList.contains('selected')) {
+                    btn.style.background = '#fb64d0';
+                    btn.style.color = '#FFFFFF';
+                    btn.style.borderColor = '#fb64d0';
+                } else {
+                    btn.style.background = '#FFFFFF';
+                    btn.style.color = 'rgb(131, 12, 14)';
+                    btn.style.borderColor = '';
+                }
+            });
+            observer.observe(btn, { attributes: true, attributeFilter: ['style', 'class'] });
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0db4a71d66f06a1',t:'MTc4MTc5NjE2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body></html>
