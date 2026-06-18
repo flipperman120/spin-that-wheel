@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en"><head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painting ROI Calculator</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    input[type=range] { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: #c8dccb; outline: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #47876b; cursor: pointer; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+    input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #47876b; cursor: pointer; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+    .num-input { font-family: 'Inter', sans-serif; font-size: 1rem; padding: .6rem .8rem; border: 2px solid #c8dccb; border-radius: 8px; width: 100%; background: #fff; transition: border-color .2s; }
+    .num-input:focus { outline: none; border-color: #47876b; }
+    .stat-card { background: #ffffff; border-radius: 12px; padding: 1.25rem; text-align: center; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen w-full" style="background: rgb(232, 243, 238);">
+  <!-- Hero Section -->
+  <header data-template-id="hero-section" class="w-full canva-section" style="background: linear-gradient(rgb(66, 156, 170), rgb(71, 134, 105));">
+   <div class="grid md:grid-cols-2 max-w-[1400px] mx-auto">
+    <div class="flex flex-col justify-center px-8 md:px-16 py-12 md:py-20">
+     <h1 data-template-id="hero-heading" class="canva-text" style="font-weight: 400; line-height: 1.05; color: rgb(255, 255, 255); font-style: normal; font-size: 111px;">Calculate
+the ROI</h1>
+     <p data-template-id="hero-subtitle" class="canva-text mt-4" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 23px;">See how your project increases in value over time</p>
+    </div>
+    <div class="h-64 md:h-auto">
+     <img data-template-id="hero-image" class="canva-image w-full h-full object-cover" loading="lazy" src="canva://MAFq19JCUJo/1" alt="Geometric Fintech Background">
+    </div>
+   </div>
+  </header><!-- Calculator Section -->
+  <main data-template-id="calc-section" class="w-full canva-section" style="background: rgb(232, 243, 238);">
+   <div class="max-w-[1400px] mx-auto px-8 md:px-16 pt-16 pb-14 mb-8">
+    <div class="mb-8">
+     <h2 data-template-id="calc-heading" class="canva-text" style="color: rgb(71, 135, 107); font-weight: 400; font-style: normal; font-size: 42px;">See how a project's value changes over time</h2>
+     <p data-template-id="calc-description" class="canva-text mt-2" style="color: rgb(26, 26, 26); font-weight: 400; font-style: normal; font-size: 18px;">Add your project details below</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-8">
+     <div class="space-y-5">
+      <div>
+       <label data-template-id="label-property-value" class="canva-text block mb-1 font-medium" for="propertyValue" style="color: rgb(26, 26, 26); font-weight: 500; font-style: normal; font-size: 14px;">Value ($)</label> <input id="propertyValue" type="text" class="num-input" value="350,000">
+      </div>
+      <div>
+       <label data-template-id="label-painting-cost" class="canva-text block mb-1 font-medium" for="paintingCost" style="color: rgb(26, 26, 26); font-weight: 500; font-style: normal; font-size: 14px;">Cost ($)</label> <input id="paintingCost" type="text" class="num-input" value="5,000">
+      </div>
+      <div>
+       <label data-template-id="label-value-increase" class="canva-text block mb-1 font-medium" for="valueIncrease" style="color: rgb(26, 26, 26); font-weight: 500; font-style: normal; font-size: 14px;">Value Increase (%)</label>
+       <div class="flex items-center gap-3">
+        <input id="valueIncrease" type="range" min="1" max="15" value="5" class="flex-1"> <span id="increaseDisplay" class="font-bold text-lg" style="color:#47876b;min-width:42px;text-align:right">5%</span>
+       </div>
+      </div>
+      <div>
+       <label data-template-id="label-years" class="canva-text block mb-1 font-medium" for="years" style="color: rgb(26, 26, 26); font-weight: 500; font-style: normal; font-size: 14px;">Years to Project</label>
+       <div class="flex items-center gap-3">
+        <input id="years" type="range" min="1" max="10" value="5" class="flex-1"> <span id="yearsDisplay" class="font-bold text-lg" style="color:#47876b;min-width:42px;text-align:right">5</span>
+       </div>
+      </div>
+      <div class="pt-4">
+       <h3 data-template-id="results-heading" class="canva-text font-bold mb-3" style="color: rgb(71, 135, 107); font-weight: 400; font-style: normal; font-size: 26px;">Your Projected ROI</h3>
+       <div class="grid grid-cols-3 gap-3">
+        <div class="stat-card">
+         <p data-template-id="stat-label-roi" class="canva-text text-sm mb-1" style="color: rgb(74, 90, 78); font-weight: 500; font-style: normal; font-size: 16px;">Total ROI</p>
+         <p id="statRoi" class="text-xl font-bold" style="color:#47876b">—</p>
+        </div>
+        <div class="stat-card">
+         <p data-template-id="stat-label-increase" class="canva-text text-sm mb-1" style="color: rgb(74, 90, 78); font-weight: 500; font-style: normal; font-size: 16px;">Value Increase</p>
+         <p id="statIncrease" class="text-xl font-bold" style="color:#47876b">—</p>
+        </div>
+        <div class="stat-card">
+         <p data-template-id="stat-label-net" class="canva-text text-sm mb-1" style="color: rgb(74, 90, 78); font-weight: 500; font-style: normal; font-size: 16px;">Net Profit</p>
+         <p id="statNet" class="text-xl font-bold" style="color:#47876b">—</p>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="bg-white rounded-2xl p-4 shadow-sm flex flex-col h-full">
+      <canvas id="chart" width="500" height="340" style="width:100%;" class="flex-1 min-h-0"></canvas>
+     </div>
+    </div>
+   </div>
+  </main>
+  <footer data-template-id="footer-section" class="w-full canva-section" style="background: rgb(71, 135, 107);">
+   <div class="max-w-[1400px] mx-auto px-8 md:px-16 py-6">
+    <p data-template-id="footer-text" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 18px;">Track your money. See the difference.</p>
+   </div>
+  </footer>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const propInput=$('propertyValue'),costInput=$('paintingCost');
+  const incSlider=$('valueIncrease'),yearSlider=$('years');
+  const incDisp=$('increaseDisplay'),yearDisp=$('yearsDisplay');
+  const canvas=$('chart'),ctx=canvas.getContext('2d');
+  let animBars=[],animId=null;
+  function parseNum(s){return parseInt(s.replace(/[^0-9]/g,''),10)||0;}
+  function fmt(n){return n.toLocaleString('en-US');}
+  function fmtDollar(n){return '$'+fmt(Math.round(n));}
+  function formatOnBlur(input){
+    input.addEventListener('blur',()=>{const v=parseNum(input.value);if(v)input.value=fmt(v);});
+    input.addEventListener('focus',()=>{input.value=input.value.replace(/,/g,'');});
+  }
+  formatOnBlur(propInput);formatOnBlur(costInput);
+  function calc(){
+    const pv=parseNum(propInput.value),pc=parseNum(costInput.value);
+    const pct=parseInt(incSlider.value),yrs=parseInt(yearSlider.value);
+    incDisp.textContent=pct+'%';yearDisp.textContent=yrs;
+    const increase=pv*(pct/100),net=increase-pc,roi=pc?((net/pc)*100):0;
+    $('statRoi').textContent=roi.toFixed(0)+'%';
+    $('statIncrease').textContent=fmtDollar(increase);
+    $('statNet').textContent=fmtDollar(net);
+    const targets=[];
+    for(let i=1;i<=yrs;i++)targets.push(pv*Math.pow(1+pct/100,i));
+    animateBars(targets,pv,yrs);
+  }
+  function animateBars(targets,baseline,yrs){
+    if(!animBars.length||animBars.length!==targets.length)animBars=targets.map(()=>0);
+    const speed=.12;
+    if(animId)cancelAnimationFrame(animId);
+    function step(){
+      let done=true;
+      for(let i=0;i<targets.length;i++){
+        animBars[i]+=(targets[i]-animBars[i])*speed;
+        if(Math.abs(targets[i]-animBars[i])>1)done=false;else animBars[i]=targets[i];
+      }
+      drawChart(animBars,baseline,yrs);
+      if(!done)animId=requestAnimationFrame(step);else animId=null;
+    }
+    step();
+  }
+  function drawChart(bars,baseline){
+    const dpr=window.devicePixelRatio||1;
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    canvas.width=w*dpr;canvas.height=h*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    const pad={t:20,r:16,b:32,l:60};
+    const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+    const maxVal=Math.max(...bars)*1.12||1,minVal=baseline*.95,range=maxVal-minVal;
+    const barW=cw/bars.length*.6,gap=cw/bars.length*.4;
+    ctx.fillStyle='#4a5a4e';ctx.font='11px Inter';ctx.textAlign='right';
+    for(let i=0;i<=4;i++){
+      const v=minVal+range*(i/4),y=pad.t+ch-ch*(i/4);
+      ctx.fillText('$'+Math.round(v/1000)+'k',pad.l-8,y+4);
+      ctx.strokeStyle='#e0e8e2';ctx.lineWidth=.5;
+      ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    }
+    const blY=pad.t+ch-ch*((baseline-minVal)/range);
+    ctx.setLineDash([5,4]);ctx.strokeStyle='#999';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,blY);ctx.lineTo(w-pad.r,blY);ctx.stroke();
+    ctx.setLineDash([]);
+    bars.forEach((v,i)=>{
+      const x=pad.l+i*(barW+gap)+gap/2;
+      const barH=ch*((v-minVal)/range);
+      const y=pad.t+ch-barH;
+      const grad=ctx.createLinearGradient(x,y,x,pad.t+ch);
+      grad.addColorStop(0,'rgba(66,156,170,1)');grad.addColorStop(1,'rgba(71,134,105,1)');
+      ctx.fillStyle=grad;
+      ctx.beginPath();ctx.roundRect(x,y,barW,barH,[6,6,0,0]);ctx.fill();
+      ctx.fillStyle='#1a1a1a';ctx.font='bold 11px Inter';ctx.textAlign='center';
+      ctx.fillText('Yr '+(i+1),x+barW/2,pad.t+ch+18);
+      ctx.fillStyle='#47876b';ctx.font='bold 10px Inter';
+      ctx.fillText('$'+Math.round(v/1000)+'k',x+barW/2,y-6);
+    });
+  }
+  [propInput,costInput].forEach(el=>el.addEventListener('input',calc));
+  [incSlider,yearSlider].forEach(el=>el.addEventListener('input',calc));
+  calc();
+})();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0db4569f74d06a1',t:'MTc4MTc5NTk1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body></html>
