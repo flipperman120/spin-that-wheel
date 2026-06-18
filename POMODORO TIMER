@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .progress-ring { transition: stroke-dashoffset 0.5s linear; }
+        .canva-button {
+            transition: filter 0.2s ease, transform 0.2s ease;
+        }
+        .canva-button:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+        }
+        .canva-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex items-center justify-center p-4" style="background: rgb(232, 76, 62);">
+  <main class="w-full">
+   <div class="max-w-2xl mx-auto mb-8">
+    <h1 data-template-id="page-title" class="canva-text text-center" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 85px;">POMODORO TIMER</h1>
+   </div>
+   <div class="w-full max-w-md mx-auto">
+    <div class="bg-white/90 backdrop-blur rounded-3xl p-8">
+     <!-- Mode Tabs -->
+     <div class="flex gap-2 mb-8 justify-center"><button id="tab-work" data-template-id="work-tab-label" class="canva-button px-4 py-2 rounded-full text-sm font-medium transition-all" onclick="switchMode('work')" style="font-weight: 500; font-style: normal; font-size: 14px;">Work</button> <button id="tab-short" data-template-id="short-break-tab-label" class="canva-button px-4 py-2 rounded-full text-sm font-medium transition-all" onclick="switchMode('short')" style="font-weight: 500; font-style: normal; font-size: 14px;">Short Break</button> <button id="tab-long" data-template-id="long-break-tab-label" class="canva-button px-4 py-2 rounded-full text-sm font-medium transition-all" onclick="switchMode('long')" style="font-weight: 500; font-style: normal; font-size: 14px;">Long Break</button>
+     </div><!-- Timer Ring -->
+     <div class="relative w-64 h-64 mx-auto mb-8">
+      <svg class="w-full h-full -rotate-90" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="#e5e7eb" stroke-width="8"></circle> <circle id="progress" class="progress-ring" cx="100" cy="100" r="90" fill="none" stroke="#e74c3c" stroke-width="8" stroke-linecap="round" stroke-dasharray="565.49" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="absolute inset-0 flex items-center justify-center"><span id="timer-display" class="text-5xl font-bold tracking-tight text-gray-800">25:00</span>
+      </div>
+     </div><!-- Controls -->
+     <div class="flex justify-center gap-4 mb-6"><button id="start-btn" data-template-id="start-btn-label" class="canva-button px-8 py-3 rounded-full font-medium text-lg transition-all" onclick="startTimer()" style="background: rgb(231, 76, 60); color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 18px;">Start</button> <button id="pause-btn" data-template-id="pause-btn-label" class="canva-button px-8 py-3 rounded-full font-medium text-lg transition-all hidden" onclick="pauseTimer()" style="background: rgb(107, 114, 128); color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 18px;">Pause</button> <button data-template-id="reset-btn-label" class="canva-button px-6 py-3 rounded-full font-medium text-lg transition-all" onclick="resetTimer()" style="background: rgb(240, 192, 189); color: rgb(0, 0, 0); font-weight: 500; font-style: normal; font-size: 18px;">Reset</button>
+     </div><!-- Sessions -->
+     <div class="text-center"><span data-template-id="session-label" class="canva-text" style="color: rgb(231, 76, 60); font-weight: 400; font-style: normal; font-size: 16px;">Sessions:</span> <span id="session-count" class="font-bold text-gray-800 ml-1">0</span>
+     </div>
+    </div>
+    <script src="/_sdk/editing_sdk.js"></script>
+    <script>
+        const MODES = { work: 25*60, short: 5*60, long: 15*60 };
+        const COLORS = { work: '#e74c3c', short: '#f97316', long: '#6b8e23' };
+        const CIRCUMFERENCE = 2 * Math.PI * 90;
+
+        let currentMode = 'work';
+        let timeLeft = MODES.work;
+        let totalTime = MODES.work;
+        let interval = null;
+        let sessions = 0;
+
+        const display = document.getElementById('timer-display');
+        const progress = document.getElementById('progress');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+
+        function updateDisplay() {
+            const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+            const s = String(timeLeft % 60).padStart(2, '0');
+            display.textContent = `${m}:${s}`;
+            const offset = CIRCUMFERENCE * (1 - timeLeft / totalTime);
+            progress.style.strokeDashoffset = offset;
+        }
+
+        function updateTabs() {
+            ['work','short','long'].forEach(mode => {
+                const tab = document.getElementById('tab-' + (mode === 'short' ? 'short' : mode === 'long' ? 'long' : 'work'));
+                if (mode === currentMode) {
+                    tab.style.background = COLORS[mode];
+                    tab.style.color = '#fff';
+                } else {
+                    tab.style.background = '#f0c0bd';
+                    tab.style.color = '#000000';
+                }
+            });
+            progress.style.stroke = COLORS[currentMode];
+        }
+
+        function switchMode(mode) {
+            clearInterval(interval); interval = null;
+            currentMode = mode;
+            timeLeft = MODES[mode];
+            totalTime = MODES[mode];
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            updateDisplay();
+            updateTabs();
+        }
+
+        function startTimer() {
+            startBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            interval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(interval); interval = null;
+                    playChime();
+                    if (currentMode === 'work') {
+                        sessions++;
+                        document.getElementById('session-count').textContent = sessions;
+                        switchMode(sessions % 4 === 0 ? 'long' : 'short');
+                    } else {
+                        switchMode('work');
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(interval); interval = null;
+            pauseBtn.classList.add('hidden');
+            startBtn.classList.remove('hidden');
+        }
+
+        function resetTimer() {
+            clearInterval(interval); interval = null;
+            timeLeft = MODES[currentMode];
+            totalTime = MODES[currentMode];
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            updateDisplay();
+        }
+
+        function playChime() {
+            try {
+                const ctx = new AudioContext();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.frequency.value = 830;
+                o.type = 'sine';
+                g.gain.setValueAtTime(0.3, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                o.start(); o.stop(ctx.currentTime + 0.8);
+            } catch(e) {}
+        }
+
+        updateDisplay();
+        updateTabs();
+    </script>
+   </div>
+  </main>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0db3f9e15aa06a1',t:'MTc4MTc5NTcxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body></html>
